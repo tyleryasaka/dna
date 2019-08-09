@@ -1,0 +1,35 @@
+:root {
+  --color0: #606C38;
+  --color1: #283618;
+  --color2: #FEFAE0;
+  --color3: #DDA15E;
+  --color4: #BC6C25;
+}
+
+.cell {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background: #222;
+  border: 1px solid #fff;
+}
+
+.cell-0 {
+  background-color: var(--color0);
+}
+
+.cell-1 {
+  background-color: var(--color1);
+}
+
+.cell-2 {
+  background-color: var(--color2);
+}
+
+.cell-3 {
+  background-color: var(--color3);
+}
+
+.cell-4 {
+  background-color: var(--color4);
+}

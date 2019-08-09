@@ -1,4 +1,55 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const config = {
+  states: 5,
+  maxTime: 1000,
+  cells: 100
+}
+
+const states = []
+const initialState = []
+
+// Initialize with random state
+for (let c = 0; c < config.cells; c++) {
+  initialState.push(getRandomInt(config.states))
+}
+states.push(initialState)
+
+// Initialize with random state mappings
+const mappings = generateMapping(3)
+
+// Iterate over time
+for (let t = 1; t < config.maxTime; t++) {
+  const currentState = states[t - 1]
+  const nextState = []
+  for (let c = 0; c < config.cells; c++) {
+    let self = currentState[c]
+    let neighbor1 = currentState[(c + config.cells - 1) % config.cells]
+    let neighbor2 = currentState[(c + 1) % config.cells]
+    nextState.push(getState(self, neighbor1, neighbor2))
+  }
+  states.push(nextState)
+}
+
+function generateMapping (levels) {
+  if (levels > 0) {
+    const arr = []
+    for (let i = 0; i < config.states; i++) {
+      arr.push(generateMapping(levels - 1))
+    }
+    return arr
+  }
+  return getRandomInt(config.states)
+}
+
+function getState (arg1, arg2, arg3) {
+  return mappings[Number(arg1)][Number(arg2)][Number(arg3)]
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+function getRandomInt (max) {
+  return Math.floor(Math.random() * Math.floor(max))
+}
+
 var html = {}
 var devtools = require('choo-devtools')
 var choo = require('choo')
@@ -10,12 +61,40 @@ app.route('/', mainView)
 app.mount('body')
 
 function mainView (state, emit) {
+  function exportData () {
+    console.log(JSON.stringify({
+      config: state.config,
+      mappings: state.mappings,
+      initialState: state.initialState
+    }))
+  }
   return (function () {
       var ac = require('/Users/tyler/repos/darwin/node_modules/nanohtml/lib/append-child.js')
-      var nanohtml0 = document.createElement("body")
-ac(nanohtml0, ["\n      Hello world\n    "])
+      var nanohtml1 = document.createElement("body")
+var nanohtml0 = document.createElement("button")
+nanohtml0["onclick"] = arguments[0]
+ac(nanohtml0, ["Export"])
+ac(nanohtml1, ["\n      ",nanohtml0,"\n      ",arguments[1],"\n    "])
+      return nanohtml1
+    }(exportData,states.map(state => {
+        return renderState(state)
+      })))
+}
+
+function renderState (state) {
+  return (function () {
+      var ac = require('/Users/tyler/repos/darwin/node_modules/nanohtml/lib/append-child.js')
+      var nanohtml0 = document.createElement("div")
+nanohtml0.setAttribute("class", "state")
+ac(nanohtml0, ["\n      ",arguments[0],"\n    "])
       return nanohtml0
-    }())
+    }(state.map(cell => {
+        return (function () {
+      var nanohtml0 = document.createElement("div")
+nanohtml0.setAttribute("class", "cell cell-" + arguments[0])
+      return nanohtml0
+    }(cell))
+      })))
 }
 
 function globalStore (state, emitter) {
@@ -24,8 +103,10 @@ function globalStore (state, emitter) {
   //   emitter.emit('render')
   // })
 
-  emitter.on('render', function () {
-    console.log('rendered')
+  emitter.on('DOMContentLoaded', function () {
+    state.initialState = initialState
+    state.config = config
+    state.mappings = mappings
   })
 }
 
