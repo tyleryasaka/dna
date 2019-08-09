@@ -61,7 +61,7 @@ function mainView (state, emit) {
     emit('regenerate', obj.config, obj.initialState, obj.mappings)
   }
   return (function () {
-      var ac = require('/Users/tyler/repos/darwin/node_modules/nanohtml/lib/append-child.js')
+      var ac = require('/Users/tyler/repos/dna/node_modules/nanohtml/lib/append-child.js')
       var nanohtml2 = document.createElement("body")
 var nanohtml0 = document.createElement("button")
 nanohtml0["onclick"] = arguments[0]
@@ -77,7 +77,7 @@ ac(nanohtml2, ["\n      ",nanohtml0,"\n      ",nanohtml1,"\n      ",arguments[2]
 
 function renderState (state) {
   return (function () {
-      var ac = require('/Users/tyler/repos/darwin/node_modules/nanohtml/lib/append-child.js')
+      var ac = require('/Users/tyler/repos/dna/node_modules/nanohtml/lib/append-child.js')
       var nanohtml0 = document.createElement("div")
 nanohtml0.setAttribute("class", "state")
 ac(nanohtml0, ["\n      ",arguments[0],"\n    "])
@@ -122,7 +122,7 @@ function globalStore (state, emitter) {
   })
 }
 
-},{"/Users/tyler/repos/darwin/node_modules/nanohtml/lib/append-child.js":29,"choo":18,"choo-devtools":8}],2:[function(require,module,exports){
+},{"/Users/tyler/repos/dna/node_modules/nanohtml/lib/append-child.js":29,"choo":18,"choo-devtools":8}],2:[function(require,module,exports){
 (function (global){
 'use strict';
 
