@@ -1,47 +1,34 @@
-const config = {
-  states: 5,
-  maxTime: 1000,
-  cells: 100
-}
-
-const states = []
-const initialState = []
-
-// Initialize with random state
-for (let c = 0; c < config.cells; c++) {
-  initialState.push(getRandomInt(config.states))
-}
-states.push(initialState)
-
-// Initialize with random state mappings
-const mappings = generateMapping(3)
-
-// Iterate over time
-for (let t = 1; t < config.maxTime; t++) {
-  const currentState = states[t - 1]
-  const nextState = []
-  for (let c = 0; c < config.cells; c++) {
-    let self = currentState[c]
-    let neighbor1 = currentState[(c + config.cells - 1) % config.cells]
-    let neighbor2 = currentState[(c + 1) % config.cells]
-    nextState.push(getState(self, neighbor1, neighbor2))
+function generateStates (configArg, initialStateArg, mappingsArg) {
+  const statesArr = []
+  statesArr.push(initialStateArg)
+  // Iterate over time
+  for (let t = 1; t < configArg.maxTime; t++) {
+    const currentState = statesArr[t - 1]
+    const nextState = []
+    for (let c = 0; c < configArg.cells; c++) {
+      let self = currentState[c]
+      let neighbor1 = currentState[(c + configArg.cells - 1) % configArg.cells]
+      let neighbor2 = currentState[(c + 1) % configArg.cells]
+      nextState.push(getState(mappingsArg, self, neighbor1, neighbor2))
+    }
+    statesArr.push(nextState)
   }
-  states.push(nextState)
+  return statesArr
 }
 
-function generateMapping (levels) {
+function generateMapping (configArg, levels) {
   if (levels > 0) {
     const arr = []
-    for (let i = 0; i < config.states; i++) {
-      arr.push(generateMapping(levels - 1))
+    for (let i = 0; i < configArg.states; i++) {
+      arr.push(generateMapping(configArg, levels - 1))
     }
     return arr
   }
-  return getRandomInt(config.states)
+  return getRandomInt(configArg.states)
 }
 
-function getState (arg1, arg2, arg3) {
-  return mappings[Number(arg1)][Number(arg2)][Number(arg3)]
+function getState (mappingsArg, arg1, arg2, arg3) {
+  return mappingsArg[Number(arg1)][Number(arg2)][Number(arg3)]
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
@@ -67,10 +54,16 @@ function mainView (state, emit) {
       initialState: state.initialState
     }))
   }
+  function importData (e) {
+    const obj = JSON.parse(e.target.value)
+    console.log(obj)
+    emit('regenerate', obj.config, obj.initialState, obj.mappings)
+  }
   return html`
     <body>
       <button onclick=${exportData}>Export</button>
-      ${states.map(state => {
+      <input oninput=${importData}/>
+      ${state.states.map(state => {
         return renderState(state)
       })}
     </body>
@@ -90,14 +83,32 @@ function renderState (state) {
 }
 
 function globalStore (state, emitter) {
-  // emitter.on('updateBrightness', function (value) {
-  //   state.brightness = value
-  //   emitter.emit('render')
+  const config = {
+    states: 5,
+    maxTime: 1000,
+    cells: 100
+  }
+  // Initialize with random state
+  const initialState = []
+  for (let c = 0; c < config.cells; c++) {
+    initialState.push(getRandomInt(config.states))
+  }
+  // Initialize with random state mappings
+  const mappings = generateMapping(config, 3)
+
+  state.states = generateStates(config, initialState, mappings)
+  state.config = config
+  state.initialState = initialState
+  state.mappings = mappings
+  // emitter.on('DOMContentLoaded', function () {
+  //
   // })
 
-  emitter.on('DOMContentLoaded', function () {
-    state.initialState = initialState
-    state.config = config
-    state.mappings = mappings
+  emitter.on('regenerate', function (configArg, initialStateArg, mappingsArg) {
+    state.config = configArg
+    state.initialState = initialStateArg
+    state.mappings = mappingsArg
+    state.states = generateStates(configArg, initialStateArg, mappingsArg)
+    emitter.emit('render')
   })
 }
