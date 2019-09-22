@@ -54,15 +54,19 @@ function mainView (state, emit) {
       initialState: state.initialState
     }))
   }
-  function importData (e) {
+  function updateData (e) {
     const obj = JSON.parse(e.target.value)
     console.log(obj)
-    emit('regenerate', obj.config, obj.initialState, obj.mappings)
+    emit('updateData', obj.config, obj.initialState, obj.mappings)
+  }
+  function importData () {
+    emit('regenerate')
   }
   return html`
     <body>
       <button onclick=${exportData}>Export</button>
-      <input oninput=${importData}/>
+      <input oninput=${updateData}/>
+      <button onclick=${importData}>Import</button>
       ${state.states.map(state => {
         return renderState(state)
       })}
@@ -104,7 +108,20 @@ function globalStore (state, emitter) {
   //
   // })
 
-  emitter.on('regenerate', function (configArg, initialStateArg, mappingsArg) {
+  emitter.on('updateData', function (configArg, initialStateArg, mappingsArg) {
+    state.inputData = {
+      configArg,
+      initialStateArg,
+      mappingsArg
+    }
+  })
+
+  emitter.on('regenerate', function () {
+    const {
+      configArg,
+      initialStateArg,
+      mappingsArg
+    } = state.inputData || {}
     state.config = configArg
     state.initialState = initialStateArg
     state.mappings = mappingsArg

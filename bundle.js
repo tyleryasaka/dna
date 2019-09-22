@@ -55,22 +55,28 @@ function mainView (state, emit) {
       initialState: state.initialState
     }))
   }
-  function importData (e) {
+  function updateData (e) {
     const obj = JSON.parse(e.target.value)
     console.log(obj)
-    emit('regenerate', obj.config, obj.initialState, obj.mappings)
+    emit('updateData', obj.config, obj.initialState, obj.mappings)
+  }
+  function importData () {
+    emit('regenerate')
   }
   return (function () {
       var ac = require('/Users/tyler/repos/dna/node_modules/nanohtml/lib/append-child.js')
-      var nanohtml2 = document.createElement("body")
+      var nanohtml3 = document.createElement("body")
 var nanohtml0 = document.createElement("button")
 nanohtml0["onclick"] = arguments[0]
 ac(nanohtml0, ["Export"])
 var nanohtml1 = document.createElement("input")
 nanohtml1["oninput"] = arguments[1]
-ac(nanohtml2, ["\n      ",nanohtml0,"\n      ",nanohtml1,"\n      ",arguments[2],"\n    "])
-      return nanohtml2
-    }(exportData,importData,state.states.map(state => {
+var nanohtml2 = document.createElement("button")
+nanohtml2["onclick"] = arguments[2]
+ac(nanohtml2, ["Import"])
+ac(nanohtml3, ["\n      ",nanohtml0,"\n      ",nanohtml1,"\n      ",nanohtml2,"\n      ",arguments[3],"\n    "])
+      return nanohtml3
+    }(exportData,updateData,importData,state.states.map(state => {
         return renderState(state)
       })))
 }
@@ -113,7 +119,20 @@ function globalStore (state, emitter) {
   //
   // })
 
-  emitter.on('regenerate', function (configArg, initialStateArg, mappingsArg) {
+  emitter.on('updateData', function (configArg, initialStateArg, mappingsArg) {
+    state.inputData = {
+      configArg,
+      initialStateArg,
+      mappingsArg
+    }
+  })
+
+  emitter.on('regenerate', function () {
+    const {
+      configArg,
+      initialStateArg,
+      mappingsArg
+    } = state.inputData || {}
     state.config = configArg
     state.initialState = initialStateArg
     state.mappings = mappingsArg
