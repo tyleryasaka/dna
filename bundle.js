@@ -54,6 +54,7 @@ function mainView (state, emit) {
       mappings: state.mappings,
       initialState: state.initialState
     }))
+    window.alert('data in console')
   }
   function updateData (e) {
     const obj = JSON.parse(e.target.value)
@@ -63,9 +64,12 @@ function mainView (state, emit) {
   function importData () {
     emit('regenerate')
   }
+  function generateRandom () {
+    emit('generateRandom')
+  }
   return (function () {
       var ac = require('/Users/tyler/repos/dna/node_modules/nanohtml/lib/append-child.js')
-      var nanohtml3 = document.createElement("body")
+      var nanohtml4 = document.createElement("body")
 var nanohtml0 = document.createElement("button")
 nanohtml0["onclick"] = arguments[0]
 ac(nanohtml0, ["Export"])
@@ -74,9 +78,12 @@ nanohtml1["oninput"] = arguments[1]
 var nanohtml2 = document.createElement("button")
 nanohtml2["onclick"] = arguments[2]
 ac(nanohtml2, ["Import"])
-ac(nanohtml3, ["\n      ",nanohtml0,"\n      ",nanohtml1,"\n      ",nanohtml2,"\n      ",arguments[3],"\n    "])
-      return nanohtml3
-    }(exportData,updateData,importData,state.states.map(state => {
+var nanohtml3 = document.createElement("button")
+nanohtml3["onclick"] = arguments[3]
+ac(nanohtml3, ["Generate"])
+ac(nanohtml4, ["\n      ",nanohtml0,"\n      ",nanohtml1,"\n      ",nanohtml2,"\n      ",nanohtml3,"\n      ",arguments[4],"\n    "])
+      return nanohtml4
+    }(exportData,updateData,importData,generateRandom,state.states.map(state => {
         return renderState(state)
       })))
 }
@@ -97,7 +104,7 @@ nanohtml0.setAttribute("class", "cell cell-" + arguments[0])
       })))
 }
 
-function globalStore (state, emitter) {
+function randomize (state) {
   const config = {
     states: 5,
     maxTime: 1000,
@@ -109,12 +116,17 @@ function globalStore (state, emitter) {
     initialState.push(getRandomInt(config.states))
   }
   // Initialize with random state mappings
-  const mappings = generateMapping(config, 3)
+  // const mappings = generateMapping(config, 3)
+  const mappings = [[[2,1,1,3,0],[2,1,1,0,2],[3,1,1,0,2],[3,0,2,0,0],[4,1,3,3,2]],[[2,0,0,0,0],[1,2,0,3,1],[0,0,3,1,1],[3,1,0,4,3],[2,0,1,3,2]],[[2,1,0,0,1],[4,3,1,4,4],[1,2,1,0,3],[4,4,1,2,1],[3,0,3,2,1]],[[1,1,2,3,1],[2,0,2,2,3],[4,1,1,0,4],[2,3,1,3,2],[2,4,2,1,4]],[[0,3,4,1,0],[3,1,3,4,1],[1,2,0,1,0],[3,3,4,1,1],[4,4,1,0,2]]]
 
   state.states = generateStates(config, initialState, mappings)
   state.config = config
   state.initialState = initialState
   state.mappings = mappings
+}
+
+function globalStore (state, emitter) {
+  randomize(state)
   // emitter.on('DOMContentLoaded', function () {
   //
   // })
@@ -137,6 +149,11 @@ function globalStore (state, emitter) {
     state.initialState = initialStateArg
     state.mappings = mappingsArg
     state.states = generateStates(configArg, initialStateArg, mappingsArg)
+    emitter.emit('render')
+  })
+
+  emitter.on('generateRandom', function () {
+    randomize(state)
     emitter.emit('render')
   })
 }
